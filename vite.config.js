@@ -13,5 +13,17 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:8000',
     },
+    host: true, // Listen on all network interfaces
   },
+  preview: {
+    host: true,
+    port: 3000,
+    strictPort: true,
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      'edinotepad.onrender.com',
+      '.onrender.com' // Allow all Render subdomains
+    ]
+  }
 })
