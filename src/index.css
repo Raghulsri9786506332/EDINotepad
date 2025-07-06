@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 99%;
+    --foreground: 240 6% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 6% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+
+    --edi-segment: 217 91% 50%;
+    --edi-element: 25 95% 53%;
+    --edi-element-hover: 25 95% 95%;
+  }
+
+  .dark {
+    --background: 220 13% 11%;
+    --foreground: 210 20% 98%;
+    --card: 220 13% 11%;
+    --card-foreground: 210 20% 98%;
+    --popover: 220 13% 11%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 220 13% 18%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 220 13% 18%;
+    --muted-foreground: 220 10% 65%;
+    --accent: 220 13% 18%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 220 13% 22%;
+    --input: 220 13% 22%;
+    --ring: 217 91% 60%;
+
+    --edi-segment: 217 91% 70%;
+    --edi-element: 25 95% 65%;
+    --edi-element-hover: 25 95% 20%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
