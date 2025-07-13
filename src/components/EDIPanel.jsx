@@ -34,103 +34,118 @@ const ediSegmentDescriptions = {
   default: 'This is an EDI Segment Identifier.'
 };
 
-const ediElementDictionary = {
-  default: 'No description available.',
-  ISA: {
-    '01': 'Authorization Information Qualifier', '02': 'Authorization Information', '03': 'Security Information Qualifier', '04': 'Security Information', '05': 'Interchange ID Qualifier', '06': 'Interchange Sender ID', '07': 'Interchange ID Qualifier', '08': 'Interchange Receiver ID', '09': 'Interchange Date (YYMMDD)', '10': 'Interchange Time (HHMM)', '11': 'Repetition Separator', '12': 'Interchange Control Version Number', '13': 'Interchange Control Number', '14': 'Acknowledgement Requested', '15': 'Usage Indicator (P/T/I)', '16': 'Component Element Separator',
-  },
-  GS: {
-    '01': 'Functional Identifier Code', '02': 'Application Sender\'s Code', '03': 'Application Receiver\'s Code', '04': 'Date (CCYYMMDD)', '05': 'Time (HHMM)', '06': 'Group Control Number', '07': 'Responsible Agency Code', '08': 'Version / Release / Industry Identifier Code',
-  },
-  ST: { '01': 'Transaction Set Identifier Code', '02': 'Transaction Set Control Number' },
-  BSN: { '01': 'Transaction Set Purpose Code', '02': 'Shipment Identification', '03': 'Date (CCYYMMDD)', '04': 'Time (HHMMSS)' },
-  HL: { '01': 'Hierarchical ID Number', '02': 'Hierarchical Parent ID Number', '03': 'Hierarchical Level Code' },
-  DTM: { '01': 'Date/Time Qualifier', '02': 'Date (CCYYMMDD)', '03': 'Time (HHMM)' },
-  N1: { '01': 'Entity Identifier Code', '02': 'Name', '03': 'Identification Code Qualifier', '04': 'Identification Code' },
-  CTT: { '01': 'Number of Line Items' },
-  SE: { '01': 'Number of Included Segments', '02': 'Transaction Set Control Number' },
-  GE: { '01': 'Number of Transaction Sets Included', '02': 'Group Control Number' },
-  IEA: { '01': 'Number of Included Functional Groups', '02': 'Interchange Control Number' },
-  REF: { '01': 'Reference Identification Qualifier', '02': 'Reference Identification', '03': 'Description' },
-  MAN: { '01': 'Marks and Numbers Qualifier', '02': 'Marks and Numbers', '03': 'Marks and Numbers' },
-};
+// Dynamically loaded X12 segment/element dictionary
+let x12Segments = {};
+let codeValues = {};
+console.log('EDIPanel: Initial x12Segments =', x12Segments);
+
 
 // --- Helper Functions ---
 const getEdiSegmentDescription = (segmentName) => {
   return ediSegmentDescriptions[segmentName.toUpperCase()] || ediSegmentDescriptions.default;
 };
 
-const getEdiElementDescription = (segment, elementIndex) => {
-  const segmentDict = ediElementDictionary[segment.toUpperCase()];
-  if (!segmentDict) return ediElementDictionary.default;
-  const key = String(elementIndex).padStart(2, '0');
-  return segmentDict[key] || ediElementDictionary.default;
+const getCodeMeaning = (seg, pos, val) => codeValues?.[seg]?.[pos]?.[val] || '';
+
+const getEdiElementDescription = (segmentName, elementIndex) => {
+  if (!segmentName) return 'No description available.';
+  const cleanSeg = segmentName.trim().toUpperCase();
+  console.log(`getEdiElementDescription called with: ${segmentName}[${elementIndex}]`);
+  const segment = x12Segments[cleanSeg];
+  console.log(`Segment ${segmentName}:`, segment);
+  
+  if (!segment) {
+    console.log(`No segment found for: ${segmentName}`);
+    return 'No description available.';
+  }
+  
+  const elementKey = String(elementIndex).padStart(2, '0');
+  const description = segment[elementKey] || 'No description available.';
+  console.log(`Element ${segmentName}-${elementKey}:`, description);
+  
+  return description;
 };
 
 // --- Components ---
-const LookupTooltip = ({ segment, element, value, children }) => {
-  const [meaning, setMeaning] = React.useState(null);
-  const [loading, setLoading] = React.useState(false);
-
-  // Only lookup if all are non-empty strings
-  const valid = [segment, element, value].every(x => typeof x === 'string' && x.length > 0);
-
-  const fetchMeaning = async () => {
-    if (!valid) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`/lookup/${segment}/${element}/${value}`);
-      const data = await res.json();
-      setMeaning(data.found ? data.meaning : 'Not found');
-    } catch {
-      setMeaning('Not found');
-    } finally {
-      setLoading(false);
+const LookupTooltip = ({ segment, element, value, children, type = 'element', allElements = [] }) => {
+  const tooltipContent = React.useMemo(() => {
+    const segmentName = segment.toUpperCase();
+    const segmentDesc = getEdiSegmentDescription(segmentName);
+    
+    // For segment tooltip
+    if (type === 'segment') {
+      return (
+        <div className="p-3 max-w-md bg-white rounded shadow-lg">
+          <div className="font-bold text-sm mb-2 text-blue-800">{segmentName} - {segmentDesc.split(' - ')[0]}</div>
+          <div className="text-xs text-gray-700 mb-2">{segmentDesc}</div>
+          
+          {allElements.length > 0 && (
+            <div className="mt-2 border-t pt-2">
+              <div className="text-xs font-semibold mb-1">Elements:</div>
+              <div className="space-y-1 max-h-60 overflow-y-auto">
+                {allElements.map((elem, idx) => {
+                  const elemKey = String(idx + 1).padStart(2, '0');
+                  const elemDesc = getEdiElementDescription(segmentName, idx + 1);
+                  return (
+                    <div key={idx} className="grid grid-cols-12 gap-1 text-xs">
+                      <div className="col-span-2 font-mono text-purple-700">{segmentName}{elemKey}</div>
+                      <div className="col-span-2 font-medium">{elem || '<empty>'}</div>
+                      <div className="col-span-8 text-gray-600">{elemDesc}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      );
     }
-  };
 
-  if (!valid) return <span>{children}</span>;
+    // For element tooltip
+    const elementDesc = getEdiElementDescription(segment, element);
+    return (
+      <div className="p-3 max-w-md bg-white rounded shadow-lg">
+        <div className="font-bold text-sm mb-2 text-blue-800">
+          {segment}{element} - {elementDesc}
+        </div>
+        <div className="text-xs text-gray-700">
+          <div className="font-medium">Value: <span className="text-purple-700">{value || '<empty>'}</span></div>
+          <div className="mt-1">Description: {elementDesc}</div>
+          {getCodeMeaning(segment, String(element).padStart(2, '0'), value) && (
+            <div className="mt-1 font-semibold">Meaning: {getCodeMeaning(segment, String(element).padStart(2, '0'), value)}</div>
+          )}
+        </div>
+      </div>
+    );
+  }, [segment, element, value, type, allElements]);
 
   return (
     <Tippy
-      content={
-        <div className="text-left p-1 min-w-[180px]">
-          <div className="font-bold">{segment} {element} = {value}</div>
-          <div className="text-xs text-muted-foreground">
-            {/* Always show static element description */}
-            <div>{getEdiElementDescription(segment, element)}</div>
-            {/* Show dynamic value meaning if found */}
-            {loading ? (
-              <div>Loading...</div>
-            ) : (
-              <div>{meaning && meaning !== 'Not found' ? meaning : 'No code description'}</div>
-            )}
-          </div>
-        </div>
-      }
+      content={tooltipContent}
       animation="scale"
-      duration={200}
-      allowHTML={true}
-      onShow={fetchMeaning}
+      arrow={true}
+      delay={[300, 0]}
+      duration={[200, 100]}
+      interactive={true}
+      theme="light"
+      placement="right"
     >
-      <span className={"px-1 rounded cursor-pointer transition-colors hover:bg-blue-100 hover:text-blue-700"}>
+      <span className="border-b border-dotted border-teal-300 cursor-help hover:bg-teal-50 px-0.5 rounded transition-colors">
         {children}
       </span>
     </Tippy>
   );
 };
 
-const EdiElement = ({ value, tag, description, className = "" }) => {
-  // Defensive: tag must be a string and at least 4 chars (e.g. N101)
-  if (typeof tag !== 'string' || tag.length < 4) {
-    return <span className={`px-1 rounded cursor-pointer ${className}`}>{value}</span>;
-  }
-  const segment = tag.substring(0, 3);
-  const element = tag.substring(3);
+const EdiElement = ({ value, tag, description, className = "", segment }) => {
+  if (!value) return null;
+  
   return (
-    <LookupTooltip segment={segment} element={element} value={value}>
-      <span className={`px-1 rounded cursor-pointer ${className}`}>{value}</span>
-    </LookupTooltip>
+    <span className={`inline-block mr-1 ${className}`}>
+      <LookupTooltip segment={segment} element={tag} value={value}>
+        <span className="text-teal-800 font-medium hover:text-teal-900">{value}</span>
+      </LookupTooltip>
+    </span>
   );
 };
 
@@ -140,6 +155,33 @@ const EDIPanel = ({ content, provider: propProvider, apiKey: propApiKey, ...prop
   const apiKey = propApiKey || localStorage.getItem(`${provider.toUpperCase()}_API_KEY`) || '';
   console.log('EDIPanel received content:', content);
   const [activeTab, setActiveTab] = React.useState('edi');
+  // Track which segment is hovered (optional UI use)
+  const [selectedSegment, setSelectedSegment] = React.useState(null);
+
+  // Fetch dictionary on mount (if not already loaded) and force re-render when ready
+  const [, forceUpdate] = React.useState(0);
+  React.useEffect(() => {
+    console.log('useEffect: Checking if we need to load x12_segments.json...');
+    if (Object.keys(x12Segments).length === 0) {
+      console.log('useEffect: Loading x12_segments.json...');
+      fetch('/x12_segments_flat.json')
+        .then(res => res.json())
+        .then(data => {
+          x12Segments = data;
+          return fetch('/x12_code_values.json');
+        })
+        .then(res => res.json())
+        .then(data => {
+          codeValues = data;
+          forceUpdate(t => t + 1);
+        })
+        .catch(err => {
+          console.error('Failed to load dictionaries:', err);
+        });
+    } else {
+      console.log('useEffect: x12_segments already loaded. Segments:', Object.keys(x12Segments).length);
+    }
+  }, []);
   const [summary, setSummary] = React.useState('');
   const [loadingSummary, setLoadingSummary] = React.useState(false);
   const [summaryError, setSummaryError] = React.useState(null);
@@ -185,86 +227,137 @@ const EDIPanel = ({ content, provider: propProvider, apiKey: propApiKey, ...prop
       return;
     }
 
-    fetch('/api/edi/summary', {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/${provider}/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, provider, apiKey })
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey
+      },
+      body: JSON.stringify({ 
+        prompt: `Please provide a summary of this EDI document:\n\n${content}`
+      })
     })
-    .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.error || e.detail || 'AI error'); }))
-    .then(data => setSummary(data.summary || data.text || 'No summary available.'))
-    .catch(e => setSummaryError(e.message))
+    .then(async (response) => {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get summary from AI');
+      }
+      return response.json();
+    })
+    .then(data => {
+      setSummary(data.text || data.summary || 'No summary available.');
+      setSummaryError(null);
+    })
+    .catch(e => {
+      console.error('AI Summary Error:', e);
+      setSummaryError(e.message || 'Failed to generate summary. Please try again.');
+    })
     .finally(() => setLoadingSummary(false));
   }, [content]);
 
   const parseAndRenderEdi = (ediContent) => {
     if (!ediContent) return null;
+    
+    // Extract transaction set code and create transaction set info
+    const stSegment = ediContent.split('~').find(seg => seg.startsWith('ST*'));
+    let transactionSetInfo = null;
+    if (stSegment) {
+      const [, transactionCode] = stSegment.split('*');
+      transactionSetInfo = {
+        code: transactionCode,
+        name: getEdiSegmentDescription(`ST${transactionCode}`) || `Transaction Set ${transactionCode}`,
+        description: `The ${transactionCode} transaction set is used for ${getEdiSegmentDescription(`ST${transactionCode}`) || 'EDI transactions'}`
+      };
+    }
     const segments = ediContent.split('~').filter(s => s.trim() !== '');
 
-    return segments.map((segment, segIndex) => {
-      const elements = segment.trim().split('*');
-      const segmentName = elements[0] || 'SEG';
-      const segmentDescription = getEdiSegmentDescription(segmentName);
+    return (
+      <div className="space-y-1">
+        {ediContent.split('~').map((segment, segIndex) => {
+          if (!segment.trim()) return null;
+          const elements = segment.split('*');
+          const segmentId = elements[0];
+          if (!segmentId) return null;
 
-      return (
-        <div key={segIndex} className="flex items-center flex-wrap mb-1">
-          <span className="text-muted-foreground mr-4 select-none">{String(segIndex + 1).padStart(3, '0')}</span>
-          
-          <Tippy
-            content={
-              <div className="text-left p-1 max-w-xs">
-                <div className="font-bold">{segmentName}</div>
-                <div className="text-xs text-muted-foreground">{segmentDescription}</div>
-              </div>
-            }
-            animation="scale"
-            duration={200}
-            allowHTML={true}
-          >
-            <span className="font-bold text-edi-segment mr-2 cursor-pointer hover:bg-edi-segment-hover transition-colors duration-150 rounded px-1">
-              {segmentName}
-            </span>
-          </Tippy>
-
-          {elements.slice(1).map((element, elIndex) => {
-            const tag = `${segmentName}${String(elIndex + 1).padStart(2, '0')}`;
-            const description = getEdiElementDescription(segmentName, elIndex + 1);
-            return (
-              <React.Fragment key={elIndex}>
-                <EdiElement
-                  value={element}
-                  tag={tag}
-                  description={description}
-                  className="font-semibold text-edi-element hover:bg-edi-element-hover transition-colors duration-150"
-                />
-                {elIndex < elements.length - 2 && <span className="text-muted-foreground mx-0.5">*</span>}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      );
-    });
+          return (
+            <div 
+              key={segIndex} 
+              className="mb-2 font-mono text-sm relative group"
+              onMouseEnter={() => setSelectedSegment(segmentId)}
+              onMouseLeave={() => setSelectedSegment(null)}
+            >
+              <LookupTooltip 
+                segment={segmentId} 
+                type="segment"
+                allElements={elements.slice(1)}
+              >
+                <span className="font-bold text-purple-800 hover:bg-purple-50 px-1 rounded">
+                  {segmentId}
+                </span>
+              </LookupTooltip>
+              
+              {elements.slice(1).map((element, elemIndex) => (
+                <React.Fragment key={`${segIndex}-${elemIndex}`}>
+                  <span className="text-gray-500">*</span>
+                  <EdiElement 
+                    value={element} 
+                    tag={String(elemIndex + 1).padStart(2, '0')} 
+                    segment={segmentId}
+                  />
+                </React.Fragment>
+              ))}
+              <span className="text-gray-500">~</span>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
-    <Card className="h-full w-full overflow-auto bg-background rounded-md">
+    <div className="w-full h-full flex flex-col bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
       {/* Tab Selector */}
-      <div className="flex gap-2 p-2 border-b bg-muted rounded-t-md">
+      <div className="flex gap-2 p-2 border-b bg-gray-50 rounded-t-md">
         <button
           onClick={() => setActiveTab('edi')}
-          className={`px-3 py-1 rounded transition-colors ${activeTab === 'edi' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
-        >EDI View</button>
+          className={`px-3 py-1.5 rounded-md transition-colors text-sm font-medium ${
+            activeTab === 'edi' 
+              ? 'bg-teal-600 text-white shadow-sm' 
+              : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+          }`}
+        >
+          EDI View
+        </button>
         <button
           onClick={() => setActiveTab('summary')}
-          className={`px-3 py-1 rounded transition-colors ${activeTab === 'summary' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}
-        >Summary</button>
+          className={`px-3 py-1.5 rounded-md transition-colors text-sm font-medium ${
+            activeTab === 'summary' 
+              ? 'bg-teal-600 text-white shadow-sm' 
+              : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+          }`}
+        >
+          AI Summary
+        </button>
       </div>
-      <CardContent className="p-4 font-mono text-sm w-full h-full overflow-auto">
+      
+      <div className="p-4 font-mono text-sm w-full h-full overflow-auto bg-white">
         {content ? (
           activeTab === 'summary' ? (
             <div className="prose prose-sm max-w-none">
-
-              {loadingSummary && <div className="text-blue-500">Generating summary...</div>}
-              {summaryError && <div className="text-red-500">{summaryError}</div>}
+              {loadingSummary && (
+                <div className="flex items-center text-teal-600">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating AI summary...
+                </div>
+              )}
+              {summaryError && (
+                <div className="p-3 bg-red-50 text-red-700 rounded-md border border-red-100">
+                  {summaryError}
+                </div>
+              )}
               {!loadingSummary && !summaryError && summary && (
                 <div className="prose prose-sm max-w-none">
                   <ReactMarkdown>{summary}</ReactMarkdown>
@@ -272,20 +365,19 @@ const EDIPanel = ({ content, provider: propProvider, apiKey: propApiKey, ...prop
               )}
             </div>
           ) : (
-            <div>
-              {console.log('Rendering EDI content:', content)}
+            <div className="space-y-1">
               {parseAndRenderEdi(content)}
             </div>
           )
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-            <FileText className="w-16 h-16 mb-4" />
-            <h3 className="text-xl font-semibold">Select a file to view</h3>
-            <p className="text-sm">Click on a file in the sidebar to display its content here.</p>
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
+            <FileText className="w-16 h-16 mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-700">No EDI Content</h3>
+            <p className="text-sm text-gray-500 mt-1">Upload or paste EDI content to begin</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

@@ -1,0 +1,28 @@
+{
+  "N1": {
+    "01": {
+      "ST": "Ship To",
+      "SF": "Ship From",
+      "BT": "Bill To",
+      "RE": "Receiving Location",
+      "VN": "Vendor",
+      "WH": "Warehouse"
+    }
+  },
+  "REF": {
+    "01": {
+      "DP": "Department Number",
+      "IA": "Internal Vendor Number",
+      "PO": "Purchase Order Number"
+    }
+  },
+  "DTM": {
+    "01": {
+      "011": "Shipped",
+      "017": "Estimated Delivery",
+      "002": "Delivery Requested",
+      "010": "Requested Ship",
+      "037": "Ship Not Before"
+    }
+  }
+}

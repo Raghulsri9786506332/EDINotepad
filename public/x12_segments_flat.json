@@ -1,0 +1,224 @@
+{
+  "ISA": {
+    "10": "Interchange Time (HHMM)",
+    "11": "Interchange Control Standards Identifier",
+    "12": "Interchange Control Version Number",
+    "13": "Interchange Control Number",
+    "14": "Acknowledgment Requested (0=No, 1=Yes)",
+    "15": "Usage Indicator (P=Production, T=Test)",
+    "16": "Component Element Separator",
+    "01": "Authorization Information Qualifier",
+    "02": "Authorization Information",
+    "03": "Security Information Qualifier",
+    "04": "Security Information",
+    "05": "Interchange ID Qualifier (Sender)",
+    "06": "Interchange Sender ID",
+    "07": "Interchange ID Qualifier (Receiver)",
+    "08": "Interchange Receiver ID",
+    "09": "Interchange Date (YYMMDD)"
+  },
+  "GS": {
+    "01": "Functional Identifier Code",
+    "02": "Application Sender's Code",
+    "03": "Application Receiver's Code",
+    "04": "Date (CCYYMMDD)",
+    "05": "Time (HHMM)",
+    "06": "Group Control Number",
+    "07": "Responsible Agency Code (X=Accredited Standards Committee X12)",
+    "08": "Version/Release/Industry Identifier Code"
+  },
+  "ST": {
+    "01": "Transaction Set Identifier Code",
+    "02": "Transaction Set Control Number",
+    "03": "Implementation Convention Reference"
+  },
+  "BEG": {
+    "01": "Transaction Set Purpose Code",
+    "02": "Purchase Order Type Code",
+    "03": "Purchase Order Number",
+    "04": "Release Number",
+    "05": "Date (YYMMDD)",
+    "06": "Contract Number"
+  },
+  "REF": {
+    "01": "Reference Identification Qualifier",
+    "02": "Reference Identification",
+    "03": "Description",
+    "04": "Reference Identifier"
+  },
+  "N1": {
+    "01": "Entity Identifier Code",
+    "02": "Name",
+    "03": "Identification Code Qualifier",
+    "04": "Identification Code",
+    "05": "Entity Relationship Code",
+    "06": "Entity Identifier Code"
+  },
+  "N2": {
+    "01": "Name",
+    "02": "Name"
+  },
+  "N3": {
+    "01": "Address Information",
+    "02": "Address Information"
+  },
+  "N4": {
+    "01": "City Name",
+    "02": "State or Province Code",
+    "03": "Postal Code",
+    "04": "Country Code",
+    "05": "Location Qualifier",
+    "06": "Location Identifier"
+  },
+  "PO1": {
+    "01": "Assigned Identification",
+    "02": "Quantity Ordered",
+    "03": "Unit or Basis for Measurement Code",
+    "04": "Unit Price",
+    "05": "Basis of Unit Price Code",
+    "06": "Product/Service ID Qualifier",
+    "07": "Product/Service ID"
+  },
+  "PID": {
+    "01": "Item Description Type",
+    "02": "Product/Process Characteristic Code",
+    "03": "Agency Qualifier Code",
+    "04": "Product Description Code",
+    "05": "Description"
+  },
+  "ITD": {
+    "01": "Terms Type Code",
+    "02": "Terms Basis Date Code",
+    "03": "Terms Discount Percent",
+    "04": "Terms Discount Due Date",
+    "05": "Terms Discount Days Due",
+    "06": "Terms Net Due Date",
+    "07": "Terms Net Days"
+  },
+  "DTM": {
+    "01": "Date/Time Qualifier",
+    "02": "Date (CCYYMMDD)",
+    "03": "Time (HHMM)",
+    "04": "Time Code",
+    "05": "Date/Time Period Format Qualifier",
+    "06": "Date/Time Period"
+  },
+  "FOB": {
+    "01": "Shipment Method of Payment",
+    "02": "Location Qualifier",
+    "03": "Description",
+    "04": "Transportation Terms Qualifier Code",
+    "05": "Transportation Terms Code"
+  },
+  "TD5": {
+    "01": "Routing Sequence Code",
+    "02": "Identification Code Qualifier",
+    "03": "Identification Code",
+    "04": "Transportation Method/Type Code",
+    "05": "Routing"
+  },
+  "SE": {
+    "01": "Number of Included Segments",
+    "02": "Transaction Set Control Number"
+  },
+  "GE": {
+    "01": "Number of Transaction Sets Included",
+    "02": "Group Control Number"
+  },
+  "IEA": {
+    "01": "Number of Included Functional Groups",
+    "02": "Interchange Control Number"
+  },
+  "AMT": {
+    "01": "Amount Qualifier Code",
+    "02": "Monetary Amount",
+    "03": "Credit/Debit Flag Code"
+  },
+  "BHT": {
+    "01": "Hierarchical Structure Code",
+    "02": "Transaction Set Purpose Code",
+    "03": "Reference Identification",
+    "04": "Date (CCYYMMDD)",
+    "05": "Time (HHMM)",
+    "06": "Transaction Type Code"
+  },
+  "BSN": {
+    "01": "Transaction Set Purpose Code",
+    "02": "Shipment Identification",
+    "03": "Date (YYMMDD)",
+    "04": "Time (HHMM)",
+    "05": "Hierarchical Structure Code"
+  },
+  "CTT": {
+    "01": "Number of Line Items",
+    "02": "Hash Total"
+  },
+  "CUR": {
+    "01": "Entity Identifier Code",
+    "02": "Currency Code",
+    "03": "Exchange Rate"
+  },
+  "HL": {
+    "01": "Hierarchical ID Number",
+    "02": "Hierarchical Parent ID Number",
+    "03": "Hierarchical Level Code",
+    "04": "Hierarchical Child Code"
+  },
+  "LIN": {
+    "01": "Assigned Identification",
+    "02": "Product/Service ID Qualifier",
+    "03": "Product/Service ID"
+  },
+  "MAN": {
+    "01": "Marks and Numbers Qualifier",
+    "02": "Marks and Numbers"
+  },
+  "MEA": {
+    "01": "Measurement Reference ID Code",
+    "02": "Measurement Qualifier",
+    "03": "Measurement Value"
+  },
+  "MSG": {
+    "01": "Free-Form Message Text"
+  },
+  "PER": {
+    "01": "Contact Function Code",
+    "02": "Name",
+    "03": "Communication Number Qualifier",
+    "04": "Communication Number"
+  },
+  "PRF": {
+    "01": "Purchase Order Number",
+    "02": "Date (CCYYMMDD)",
+    "03": "Assigned Identification"
+  },
+  "SAC": {
+    "01": "Allowance or Charge Indicator",
+    "02": "Service, Promotion, Allowance, or Charge Code",
+    "03": "Agency Qualifier Code",
+    "04": "Agency Service, Promotion, Allowance, or Charge Code",
+    "05": "Amount"
+  },
+  "SHP": {
+    "01": "Shipment/Order Status Code",
+    "02": "Date (CCYYMMDD)",
+    "03": "Time (HHMM)",
+    "04": "Date (CCYYMMDD)",
+    "05": "Time (HHMM)"
+  },
+  "TDS": {
+    "01": "Amount",
+    "02": "Amount",
+    "03": "Amount"
+  },
+  "TXI": {
+    "01": "Tax Type Code",
+    "02": "Monetary Amount",
+    "03": "Percent",
+    "04": "Tax Jurisdiction Code Qualifier",
+    "05": "Tax Jurisdiction Code"
+  },
+  "default": {
+    "00": "No description available."
+  }
+}

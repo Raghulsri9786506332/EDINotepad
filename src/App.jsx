@@ -84,7 +84,6 @@ function App() {
             setAutoExplain={setAutoExplain}
           />
           <img src={logo} alt="Aptean Logo" className="w-10 h-10 object-contain" />
-
           <h1 className="text-xl font-bold">Aptean EDI Notepad</h1>
         </div>
         <div className="flex items-center gap-4">
@@ -95,8 +94,7 @@ function App() {
             <LogOut className="h-4 w-4" />
             <span>Sign out</span>
           </Button>
-
-            <ModeToggle />
+          <ModeToggle />
         </div>
       </header>
 

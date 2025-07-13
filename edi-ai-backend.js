@@ -27,14 +27,41 @@ app.post('/api/:provider/chat', async (req, res) => {
         { contents: [{ parts: [{ text: prompt }] }] }
       );
       text = gemRes.data.candidates[0]?.content?.parts[0]?.text || 'No response';
-    } else if (provider === 'openai') {
-      const openai = new OpenAI({ apiKey });
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 600
-      });
-      text = completion.choices[0].message.content;
+    } else if (provider === 'claude') {
+      // Claude (Anthropic) API example
+      // Docs: https://docs.anthropic.com/claude/reference/messages_post
+      const claudeRes = await axios.post(
+        'https://api.anthropic.com/v1/messages',
+        {
+          model: 'claude-3-opus-20240229',
+          max_tokens: 600,
+          temperature: 0.2,
+          messages: [{ role: 'user', content: prompt }]
+        },
+        {
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          }
+        }
+      );
+      text = claudeRes.data.content[0]?.text || 'No response';
+    } else if (provider === 'deepseek') {
+      // DeepSeek API support
+      // Make sure the endpoint and model match your DeepSeek account
+      const deepseekRes = await axios.post(
+        'https://api.deepseek.com/v1/chat/completions',
+        {
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 600
+        },
+        {
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        }
+      );
+      text = deepseekRes.data.choices[0]?.message?.content || 'No response';
     } else {
       return res.status(400).json({ error: 'Unknown provider' });
     }
@@ -66,7 +93,7 @@ Please write a short, easy-to-understand briefing that:
 • Lists the key facts in simple bullets: who sent it, who will receive the goods, when it was sent, what is being shipped, how many units, where it is going, important dates, reference numbers (PO, invoice, tracking, etc.).
 • Avoids any EDI jargon or segment codes—no “ST”, “BSN”, “HL” codes, no technical language.
 • Uses everyday words (e.g., say “tracking number” instead of “PRO number”).
-• Keeps it concise (≈150 words).
+• Keeps it concise (≈150 words).can you plzz diffrents sade with the color hedder and if one topic is come end need to know like ___
 
 Here is the raw EDI text:
 ${content}
@@ -129,6 +156,21 @@ ${content}
         }
       );
       summary = dsRes.data.choices[0]?.message?.content || 'No summary returned';
+    } else if (provider === 'deepseek') {
+      // DeepSeek API support
+      // Make sure the endpoint and model match your DeepSeek account
+      const deepseekRes = await axios.post(
+        'https://api.deepseek.com/v1/chat/completions',
+        {
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 600
+        },
+        {
+          headers: { 'Authorization': `Bearer ${apiKey}` }
+        }
+      );
+      text = deepseekRes.data.choices[0]?.message?.content || 'No response';
     } else {
       return res.status(400).json({ error: 'Unknown provider' });
     }
